@@ -26,6 +26,10 @@ describe("Pact with Order API", () => {
       items: eachLike(itemProperties),
     };
 
+    const orderNotFoundError = {
+      error: "Order not found",
+    }
+
     describe("when a /orders call to the API is made", () => {
       before(() => {
         provider
@@ -56,7 +60,6 @@ describe("Pact with Order API", () => {
         });
       });
     });
-
 
     describe("when a /orders/1 call to the API is made", () => {
       before(() => {
@@ -89,5 +92,45 @@ describe("Pact with Order API", () => {
       });
     });
 
+    describe("when a /orders/666 call to the API is made", () => {
+      before(() => {
+        provider
+          .given("there is no order with id 666")
+          .uponReceiving("a request for order with id 666")
+          .withRequest({
+            method: "GET",
+            path: "/order/666",
+          })
+          .willRespondWith({
+            body: {},
+            status: 404,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+          });
+      });
+
+      it('should handle 404 error', () => {
+        const id = 666;
+        return provider.executeTest(async (mockserver) => {
+          // The mock server is started on a randomly available port,
+          // so we set the API mock service port so HTTP clients
+          // can dynamically find the endpoint
+          process.env.API_PORT = mockserver.port;
+
+          try {
+            await fetchOrder(id);
+            // The test should fail if fetchOrder does not throw an error
+            expect.fail('fetchOrder did not throw an error');
+          } catch (error) {
+            expect(error).to.be.an.instanceOf(Error);
+            expect(error.message).to.equal(`Error from /order${id} response`);
+          }
+        });
+
+      }
+      );
+    });
   });
+
 });

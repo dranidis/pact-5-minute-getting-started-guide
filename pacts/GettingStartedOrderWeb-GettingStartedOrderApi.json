@@ -97,6 +97,25 @@
         },
         "status": 200
       }
+    },
+    {
+      "description": "a request for order with id 666",
+      "providerStates": [
+        {
+          "name": "there is no order with id 666"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/order/666"
+      },
+      "response": {
+        "body": {},
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "status": 404
+      }
     }
   ],
   "metadata": {

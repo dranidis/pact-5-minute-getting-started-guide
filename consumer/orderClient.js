@@ -13,7 +13,7 @@ const fetchOrders = () => {
     },
     (err) => {
       console.log(err)
-      throw new Error(`Error from response: ${err.body}`);
+      throw new Error(`Error from response: ${err.response.body}`);
     }
   );
 };
@@ -24,7 +24,7 @@ const fetchOrder = (id) => {
       return new Order(res.body.id, res.body.items);
     },
     (err) => {
-      throw new Error(`Error from response: ${err.body}`);
+      throw new Error(`Error from /order${id} response`);
     }
   );
 }
