@@ -3,6 +3,11 @@ const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const { server } = require("./provider.js");
 const { providerName, pactFile } = require("../pact.js");
+
+const orderRepository = require("./OrderRepository.js");
+const { Order } = require("./Order.js");
+const { Item } = require("./Item.js");
+
 chai.use(chaiAsPromised);
 let port;
 let opts;
@@ -94,6 +99,17 @@ describe("Pact Verification", () => {
       }
     }
 
+    opts = {
+      ...opts,
+      stateHandlers: {
+        "there are orders": () => {
+          orderRepository.clearAll();
+          orderRepository.add(new Order(1, [new Item("pizza", 2, 100)]));
+          orderRepository.add(new Order(2, [new Item("burger", 1, 50)]));
+        }
+      }
+    };
+
     app = server.listen('3000', '127.0.0.1', () => {
       console.log(`Provider service listening on http://localhost:${port}`);
     });
@@ -107,7 +123,7 @@ describe("Pact Verification", () => {
 
 
   it("should validate the expectations of Order Web", () => {
-    console.log(opts)
+    console.log("OPTIONS: ", opts)
     return new Verifier(opts)
       .verifyProvider()
       .then((output) => {

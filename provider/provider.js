@@ -12,13 +12,22 @@ server.use((_, res, next) => {
 });
 
 // "In memory" data store
-let dataStore = require("./data/orders.js");
+// let dataStore = require("./data/orders.js");
+const orderRepository = require("./OrderRepository.js");
 
 server.get("/orders", (_, res) => {
-  res.json(dataStore);
+  res.json(orderRepository.fetchAll());
+});
+
+server.get("/order/:id", (req, res) => {
+  const order = orderRepository.getById(parseInt(req.params.id));
+  if (order) {
+    res.json(order);
+  } else {
+    res.status(404).json({ error: "Order not found" });
+  }
 });
 
 module.exports = {
   server,
-  dataStore,
 };

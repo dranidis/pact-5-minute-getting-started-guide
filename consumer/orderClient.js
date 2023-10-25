@@ -18,6 +18,18 @@ const fetchOrders = () => {
   );
 };
 
+const fetchOrder = (id) => {
+  return request.get(`http://${hostname}:${process.env.API_PORT}/order/${id}`).then(
+    (res) => {
+      return new Order(res.body.id, res.body.items);
+    },
+    (err) => {
+      throw new Error(`Error from response: ${err.body}`);
+    }
+  );
+}
+
 module.exports = {
   fetchOrders,
+  fetchOrder,
 };

@@ -9,14 +9,14 @@ const { provider } = require("../pact");
 const { eachLike } = require("@pact-foundation/pact").MatchersV3;
 
 // Importing our system under test (the orderClient) and our Order model
-const { Order } = require("./order"); 
-const { fetchOrders } = require("./orderClient");
+const { Order } = require("./order");
+const { fetchOrders, fetchOrder } = require("./orderClient");
 
 // This is where we start writing our test
 describe("Pact with Order API", () => {
   describe("given there are orders", () => {
     const itemProperties = {
-      name: "burger",
+      name: "pizza",
       quantity: 2,
       value: 100,
     };
@@ -26,7 +26,7 @@ describe("Pact with Order API", () => {
       items: eachLike(itemProperties),
     };
 
-    describe("when a call to the API is made", () => {
+    describe("when a /orders call to the API is made", () => {
       before(() => {
         provider
           .given("there are orders")
@@ -56,5 +56,38 @@ describe("Pact with Order API", () => {
         });
       });
     });
+
+
+    describe("when a /orders/1 call to the API is made", () => {
+      before(() => {
+        provider
+          .given("there is an order with id 1")
+          .uponReceiving("a request for order with id 1")
+          .withRequest({
+            method: "GET",
+            path: "/order/1",
+          })
+          .willRespondWith({
+            body: orderProperties,
+            status: 200,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+          });
+      });
+
+      it("will receive the order with id 1", () => {
+        return provider.executeTest((mockserver) => {
+          // The mock server is started on a randomly available port,
+          // so we set the API mock service port so HTTP clients
+          // can dynamically find the endpoint
+          process.env.API_PORT = mockserver.port;
+          return expect(fetchOrder(1)).to.eventually.deep.equal(
+            new Order(orderProperties.id, [itemProperties]),
+          );
+        });
+      });
+    });
+
   });
 });
