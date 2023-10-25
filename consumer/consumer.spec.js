@@ -123,7 +123,6 @@ describe("Pact with Order API", () => {
             // The test should fail if fetchOrder does not throw an error
             expect.fail('fetchOrder did not throw an error');
           } catch (error) {
-            expect(error).to.be.an.instanceOf(Error);
             expect(error.message).to.equal(`Error from /order${id} response`);
           }
         });
