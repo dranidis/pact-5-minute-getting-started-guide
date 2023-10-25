@@ -104,8 +104,12 @@ describe("Pact Verification", () => {
       stateHandlers: {
         "there are orders": () => {
           orderRepository.clearAll();
+          orderRepository.add(new Order(111, [new Item("pizza", 2, 100)]));
+          orderRepository.add(new Order(112, [new Item("burger", 1, 50)]));
+        },
+        "there is an order with id 1": () => {
+          orderRepository.clearAll();
           orderRepository.add(new Order(1, [new Item("pizza", 2, 100)]));
-          orderRepository.add(new Order(2, [new Item("burger", 1, 50)]));
         }
       }
     };
